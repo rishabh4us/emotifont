@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js">
+</script>
+<script type="text/javascript">
+
+
+
+$(document).ready(function(){
+	   var date = new Date();
+	   var startTime;
+	   var endTime;
+	   var fontSize;
+	   var bigFont = 30;
+	   var smallFont = 12;
+	   var mostTime = 350;
+	   var leastTime = 50;
+	   var canStart = true;
+	   var graph = new Array();
+	   var line = 0;
+	   var points = new Array();
+   
+   function clearAll(){ 
+	 $("#ip").empty();
+	 ctx.clearRect ( 0 , 0 , width , height );
+	 graph = [];
+	 line = 0;
+	 } 
+  
+  function setCanStart(){canStart = true;}
+  function unsetCanStart(){canStart = false;}	
+  $("input").keydown(function(e){
+  	// esc 27, tab, 9, caps 10, shift 16, control = 17, alt/opt 18, command 91;
+  	if(!(e.which == 27 | e.which == 8 | e.which == 9 | e.which == 10 | e.which == 13 | e.which == 16 | e.which == 17 | e.which == 18 | e.which == 91 )){
+    
+  	if(canStart){
+  		unsetCanStart();
+    	$("input").css("background-color","yellow");
+    	startTime = (new Date()).getTime();
+    	setCanStart();
+    }
+    
+    }
+  });
+  
+  $("input").keypress(function(){
+
+  });
+  
+  $("input").keyup(function(e){
+  	// esc 27,delete 8,  tab, 9, caps 10, shift 16, control = 17, alt/opt 18, command 91;
+  	if(!(e.which == 27 | e.which == 8 | e.which == 9 | e.which == 10 | e.which == 13 | e.which == 16 | e.which == 17 | e.which == 18 | e.which == 91 )){
+    
+  	unsetCanStart();
+    $("input").css("background-color","pink");
+    endTime = (new Date()).getTime() - startTime;
+    if(endTime> mostTime){ fontSize=bigFont; endTime = mostTime; }
+    else if(endTime < leastTime){ fontSize=smallFont; endTime = leastTime; }    
+    fontSize = parseInt(endTime * (bigFont - smallFont) / (mostTime + leastTime)) ; 
+    points.push(fontSize);
+    fontSize = smallFont + fontSize;
+     
+		
+	//debugging formula
+	//$("#ip").append( endTime + '<br>');
+    //$("#ip").append( fontSize + '<br>');
+    
+    }
+    
+    if(e.which == 13){
+    	$("#ip").append('<br>');
+    	if(points.length!=0){
+    		graph.push(points);
+    		line=line+1;
+    	}
+    	
+    	if(graph[line-1].length != 0){
+    	drawGraph();}
+    	points = [];
+    	
+    }
+    if(e.which == 8){
+    	clearAll();
+    }
+    else if(e.which != 13){
+	    $("#ip").append('<strong style="font-size:'+ fontSize +'px" >'+ $('#in').val() +'</strong>');
+	    //$("#ip").append('<span style="font-size:'+ fontSize +'px" >'+ $('#in').val() +'</span>');
+
+    }
+    $('#in').val('');
+    setCanStart();
+  });
+  	
+  	var c=document.getElementById("myCanvas");
+  	var ctx=c.getContext("2d");
+  	var width = c.width;
+	var height = c.height;
+	var interval = 0 ;
+	
+	function drawGraph(){
+	
+	var interval = width/((graph[line-1].length)-1);
+	var amplitude = height/(bigFont - smallFont)
+	
+	ctx.beginPath();
+	var x= 0;
+	var y = height - graph[line-1][0]*amplitude;
+	ctx.moveTo(x,y);
+	//var color =  ["#f00AB4","#0FAF80","#40AB0F","#09CB09","#200F67","#4060AE"];
+	var color =  ["blue","red","green","cyan","orange","grey"];
+	ctx.lineWidth = 1;
+	ctx.strokeStyle = color[line%6];
+	
+	for(i=1;i<graph[line-1].length;i++){
+		x += interval;
+		y = height - graph[line-1][i]*amplitude;
+		ctx.lineTo(x,y);
+		ctx.arc(x, y, 3, 0, 2 * Math.PI);
+
+		
+		//ctx.moveTo(interval,(height - graph[line-1][i]*amplitude));
+		
+		ctx.stroke();
+	}
+	
+	
+	}
+
+});
+
+
+</script>
+</head>
+<body>
+	<canvas id="myCanvas" width="800" height="400" style="position:absolute;left: 300px;border:1px solid #d3d3d3;">
+	Your browser does not support the HTML5 canvas tag.</canvas>
+	<input type="text" id="in" >
+	<!--<button type="button" onclick="clearAll();"> Clear All </button>-->
+    <div id="ip"></div>
+
+</body>
